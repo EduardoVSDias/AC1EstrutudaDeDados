@@ -1,34 +1,41 @@
 import javax.swing.JOptionPane;
 
 public class Fila {
-    IntNoSimples primeiro, ultimo;
-    int numero_nos = 0;
+    private String[] fila;
+    private int front = -1, rear = -1;
 
-    Fila(){
-        primeiro = ultimo = null;
+    Fila() {
+        fila = new String[10];
     }
 
-    void adicionaChamado(String valor){
-        IntNoSimples novoNo = new IntNoSimples(valor);
-        if (primeiro == null) {
-            primeiro = ultimo = novoNo;
-        } else {
-            ultimo.prox = novoNo;
-            ultimo = novoNo;
+    public void adicionar(String item) {
+        if (rear == fila.length - 1) {
+            JOptionPane.showMessageDialog(null, "Fila cheia.");
+            return;
         }
-        numero_nos++;
+        if (front == -1) front = 0;
+        fila[++rear] = item;
     }
 
-    void visualizarFila(){
+    public String remover() {
+        if (front == -1 || front > rear) {
+            JOptionPane.showMessageDialog(null, "Fila vazia.");
+            return null;
+        }
+        return fila[front++];
+    }
+
+    public boolean filaVazia() {
+        return front == -1 || front > rear;
+    }
+
+    public String listar() {
+        if (filaVazia()) return "Nenhum chamado.";
+
         StringBuilder sb = new StringBuilder();
-        IntNoSimples temp_no = primeiro;
-        while (temp_no != null) {
-            sb.append("Chamado Pendente - ").append(temp_no.valor).append("\n");
-            temp_no = temp_no.prox;
+        for (int i = front; i <= rear; i++) {
+            sb.append(fila[i]).append(", ");
         }
-        if (sb.length() == 0) {
-            sb.append("Não há chamados pendentes.");
-        }
-        JOptionPane.showMessageDialog(null, sb.toString(), "Chamados Pendentes", JOptionPane.INFORMATION_MESSAGE);
+        return sb.toString();
     }
 }

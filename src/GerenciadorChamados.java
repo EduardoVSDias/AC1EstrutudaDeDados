@@ -1,68 +1,118 @@
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 public class GerenciadorChamados {
 
-    ListaEncadeada listaAtendimento;
-    Fila filaPendentes;
-    Pilha pilhaResolvidos;
+    // Fila de pendentes
+    Fila filaPendentes = new Fila();
 
-    // Construtor da classe GerenciadorChamados
-    public GerenciadorChamados() {
-        listaAtendimento = new ListaEncadeada();
-        filaPendentes = new Fila();
-        pilhaResolvidos = new Pilha();
+    // Lista encadeada de chamados em atendimento
+    ListaEncadeada listaAtendimento = new ListaEncadeada();
+
+    // Pilha de chamados resolvidos
+    Pilha pilhaResolvidos = new Pilha();
+
+    public static void main(String[] args) {
+        GerenciadorChamados gerenciador = new GerenciadorChamados();
+        gerenciador.menuInterativo();
     }
 
-    // Método para exibir o menu de opções
-    public void menu() {
+    // Função do menu interativo
+    public void menuInterativo() {
         while (true) {
-            String menu = "Escolha uma opção:\n" +
-                    "1. Adicionar Chamado\n" +
-                    "2. Mover para Atendimento\n" +
-                    "3. Resolver Chamado\n" +
-                    "4. Visualizar Chamados Pendentes\n" +
-                    "5. Visualizar Chamados em Atendimento\n" +
-                    "6. Visualizar Chamados Resolvidos\n" +
-                    "7. Sair";
-            // Exibe a opção para o usuário
-            int escolha = Integer.parseInt(JOptionPane.showInputDialog(menu));
+            String[] options = {"Adicionar Chamado", "Mover para Atendimento", "Resolver Chamado", "Visualizar Chamados", "Sair"};
+            int escolha = JOptionPane.showOptionDialog(null, "Selecione uma opção", "Menu", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
 
             switch (escolha) {
+                case 0:
+                    adicionarChamado();
+                    break;
                 case 1:
-                    String valor = JOptionPane.showInputDialog("Digite o valor do chamado (como número):");
-                    filaPendentes.adicionaChamado(valor); // Supondo que valor seja String
+                    moverParaAtendimento();
                     break;
                 case 2:
-                    String chamadoParaAtendimento = JOptionPane.showInputDialog("Digite o chamado para mover para atendimento:");
-                    listaAtendimento.insereNo_fim(new IntNoSimples(chamadoParaAtendimento));
+                    resolverChamado();
                     break;
                 case 3:
-                    String chamadoParaResolver = JOptionPane.showInputDialog("Digite o chamado para resolver:");
-                    pilhaResolvidos.empilhar(chamadoParaResolver);
+                    visualizarChamados();
                     break;
                 case 4:
-                    filaPendentes.visualizarFila(); // Visualiza os chamados pendentes
+                    JOptionPane.showMessageDialog(null, "Saindo...");
+                    System.exit(0);
                     break;
-                case 5:
-                    listaAtendimento.exibeLista(); // Visualiza os chamados em atendimento
-                    break;
-                case 6:
-                    pilhaResolvidos.visualizarPilha(); // Visualiza os chamados resolvidos
-                    break;
-                case 7:
-                    JOptionPane.showMessageDialog(null, "Saindo do sistema.", "Saída", JOptionPane.INFORMATION_MESSAGE);
-                    return;
                 default:
-                    JOptionPane.showMessageDialog(null, "Opção inválida.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Opção inválida");
             }
         }
     }
 
-    // Método main que será executado quando a classe for chamada
-    public static void main(String[] args) {
-        // Criando uma instância de GerenciadorChamados
-        GerenciadorChamados gerenciador = new GerenciadorChamados();
-        // Chamando o menu de opções
-        gerenciador.menu();
+    // Adiciona um chamado à fila de pendentes
+    public void adicionarChamado() {
+        String chamado = JOptionPane.showInputDialog("Insira o chamado:");
+        if (chamado != null) {
+            filaPendentes.adicionar(chamado);
+            JOptionPane.showMessageDialog(null, "Chamado adicionado à fila de pendentes.");
+        }
+    }
+
+    // Move um chamado da fila para a lista de atendimento
+    public void moverParaAtendimento() {
+        if (filaPendentes.filaVazia()) {
+            JOptionPane.showMessageDialog(null, "Não há chamados pendentes.");
+        } else {
+            String chamado = filaPendentes.remover();
+            listaAtendimento.insereNo_fim(new IntNoSimples(chamado));
+            JOptionPane.showMessageDialog(null, "Chamado movido para atendimento.");
+        }
+    }
+
+    // Resolve um chamado da lista de atendimento e move para a pilha de resolvidos
+    public void resolverChamado() {
+        String resolver = JOptionPane.showInputDialog("Insira o chamado:");
+        if (listaAtendimento.listaVazia()) {
+            JOptionPane.showMessageDialog(null, "Não há chamados em atendimento.");
+        } else {
+            if(listaAtendimento.buscaNo(resolver) == null){
+                JOptionPane.showMessageDialog(null, "Não há chamado com este nome.");
+            }
+            else {
+                IntNoSimples c = listaAtendimento.buscaNo(resolver);
+                listaAtendimento.excluiNo(c.toString());;
+                pilhaResolvidos.empilhar(resolver);
+
+                JOptionPane.showMessageDialog(null, "Chamado resolvido.");
+            }
+        }
+    }
+
+    // Visualiza todos os chamados
+    public void visualizarChamados() {
+        StringBuilder sb = new StringBuilder();
+
+        // Pendentes
+        sb.append("Pendentes: ");
+        if (filaPendentes.filaVazia()) {
+            sb.append("Nenhum chamado pendente.\n");
+        } else {
+            sb.append(filaPendentes.listar()).append("\n");
+        }
+
+        // Em Atendimento
+        sb.append("Em Atendimento: ");
+        if (listaAtendimento.listaVazia()) {
+            sb.append("Nenhum chamado em atendimento.\n");
+        } else {
+            sb.append(listaAtendimento.listar()).append("\n");
+        }
+
+        // Resolvidos
+        sb.append("Resolvidos: ");
+        if (pilhaResolvidos.pilhaVazia()) {
+            sb.append("Nenhum chamado resolvido.\n");
+        } else {
+            sb.append(pilhaResolvidos.listar()).append("\n");
+        }
+
+        // Exibe as listas
+        JOptionPane.showMessageDialog(null, sb.toString());
     }
 }

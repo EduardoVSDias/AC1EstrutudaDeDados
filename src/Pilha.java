@@ -1,30 +1,33 @@
 import javax.swing.JOptionPane;
 
 public class Pilha {
-    IntNoSimples topo;
-    int numero_nos = 0;
+    private String[] pilha;
+    private int topo;
 
-    Pilha(){
-        topo = null;
+    Pilha() {
+        pilha = new String[10];
+        topo = -1;
     }
 
-    void empilhar(String valor){
-        IntNoSimples novoNo = new IntNoSimples(valor);
-        novoNo.prox = topo;
-        topo = novoNo;
-        numero_nos++;
+    public void empilhar(String item) {
+        if (topo == pilha.length - 1) {
+            JOptionPane.showMessageDialog(null, "Pilha cheia.");
+            return;
+        }
+        pilha[++topo] = item;
     }
 
-    void visualizarPilha(){
+    public boolean pilhaVazia() {
+        return topo == -1;
+    }
+
+    public String listar() {
+        if (pilhaVazia()) return "Nenhum chamado.";
+
         StringBuilder sb = new StringBuilder();
-        IntNoSimples temp_no = topo;
-        while (temp_no != null) {
-            sb.append("Chamado Resolvido - ").append(temp_no.valor).append("\n");
-            temp_no = temp_no.prox;
+        for (int i = 0; i <= topo; i++) {
+            sb.append(pilha[i]).append(", ");
         }
-        if (sb.length() == 0) {
-            sb.append("Não há chamados resolvidos.");
-        }
-        JOptionPane.showMessageDialog(null, sb.toString(), "Chamados Resolvidos", JOptionPane.INFORMATION_MESSAGE);
+        return sb.toString();
     }
 }
